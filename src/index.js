@@ -7,7 +7,16 @@ dotenv.config({
     path: './env'
 }); //this will load the .env file and make the variables available in process.env
 
-connectDB();
+connectDB().
+then(()=>{
+    app.listen(process.env.PORT || 8000,()=>{
+        console.log(`Server started on port ${process.env.PORT}`)
+    })
+}).
+catch((err)=>{
+    console.log("Error connecting to MongoDB",err)
+    throw err
+})
 
 
 
