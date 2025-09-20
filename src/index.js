@@ -4,7 +4,7 @@ import dotenv from "dotenv";//this is the new way of importing modules in ES6
 import connectDB from "./db/index.js";
 import { app } from "./app.js";
 dotenv.config({
-    path: './env'
+    path: './.env'
 }); //this will load the .env file and make the variables available in process.env
 
 connectDB().
