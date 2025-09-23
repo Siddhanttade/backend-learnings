@@ -14,11 +14,8 @@ import {
 
     } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js";
-import { loginUser } from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import multer from "multer";
-import { upload } from "../middlewares/multer.middleware.js";
-import { getWatchHistory } from "../controllers/user.controller.js";
 import { get } from "mongoose"; 
 
 const router = Router();
