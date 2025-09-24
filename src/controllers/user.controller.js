@@ -4,6 +4,8 @@ import {User} from "../models/user.models.js";
 import {uploadOnCloudinary} from "../utils/cloudinary.js";
 import { ApiResponse } from '../utils/ApiResponse.js'; 
 import jwt from 'jsonwebtoken'; 
+import mongoose from "mongoose";
+// ...existing code...
 
 
 const generateAccessAndRefreshToken=async(userId)=>{
@@ -229,8 +231,12 @@ const refreshAccessToken=asyncHandler(async(req,res)=>{
 
 const changeCurrentPassword=asyncHandler(async(req,res)=>{
     //we would take info regarding login by using middleware
-    const {oldPassword,newPassword}=req.body;
+    const {oldPassword,newPassword}=req.body || {};
 
+    if (!oldPassword || !newPassword) {
+        throw new ApiError(400, "oldPassword and newPassword are required");
+    }
+    
     const user=await User.findById(req.user?._id).select("+password");//taking user id from middleware
     const isPasswordCorrect=await user.
     isPasswordCorrect(oldPassword);
@@ -240,7 +246,7 @@ const changeCurrentPassword=asyncHandler(async(req,res)=>{
     }
 
     user.password=newPassword;
-    await user.save(validateBeforeSave=false);
+    await user.save({validateBeforeSave:false});//we are not validating other fields because we are only changing password
 
     return res.status(200).
     json(new ApiResponse(200,{},"password changed successfully"));
@@ -326,7 +332,7 @@ const updateUserCoverImage=asyncHandler(async(req,res)=>{
 }) 
 
 const getUserChannelProfile=asyncHandler(async(req,res)=>{
-    const username=req.params
+    const username=req.params.username;
 
     if(!username?.trim()){
         throw new ApiError(400,"username is required");
@@ -360,11 +366,10 @@ const getUserChannelProfile=asyncHandler(async(req,res)=>{
                 isSubscribedToChannel:{
                     //this is designed for frontend to know whether the logged in user is subscribed to this channel or not
                     $cond:{
-                        if:{
-                            $in:[req.user?._id,"$subscribers.subscriber"], //in can check both in object as well as arrays
+                        if:{$in:[req.user?._id,"$subscribers.subscriber"]}, //in can check both in object as well as arrays
                             then:true,
                             else:false
-                        }
+                        
                     }
                 }
             }
@@ -395,8 +400,10 @@ const getWatchHistory=asyncHandler(async(req,res)=>{
         {
             $match:{
                 _id:new mongoose.Types.ObjectId(req.user?._id)//here we are converting the id to object id because in mongo db it is stored as object id
-            },
-            $lookup:{
+            }
+        },
+        {
+                $lookup:{
                 from:"videos",
                 localField:"watchHistory",
                 foreignField:"_id",

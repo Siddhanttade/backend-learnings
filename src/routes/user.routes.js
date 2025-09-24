@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+// ...existing code...
 import { Router } from "express";
 import {
      changeCurrentPassword,
@@ -49,7 +51,7 @@ router.route("/avatar").patch(verifyJWT, upload.single("avatar"), updateUserAvat
 router.route("/coverImage").patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage);
 //we are taking from params 
 router.route("/c/:username").get(verifyJWT, getUserChannelProfile);
-router.route("history").get(verifyJWT, getWatchHistory);
+router.route("/history").get(verifyJWT, getWatchHistory);
 
 
 
